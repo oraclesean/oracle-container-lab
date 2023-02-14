@@ -11,6 +11,9 @@ export CONTAINER_NAME=CLONE
             ${CONTAINER_NAME}_${dir}
 done
 
+# Set ownership of the directory:
+chown -R oracle:oinstall /oradata/${CONTAINER_NAME}
+
 # Stop the old container:
 docker stop LAB
 

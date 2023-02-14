@@ -18,6 +18,9 @@ CONTAINER_NAME=LAB
             ${CONTAINER_NAME}_${dir}
 done
 
+# Set ownership of the directory:
+chown -R oracle:oinstall /oradata/${CONTAINER_NAME}
+
 # Create a database container and:
 #     mount volumes for data, diagnostic, and audit data
 #     mount the shared scripts directory
