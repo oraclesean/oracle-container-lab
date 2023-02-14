@@ -1,0 +1,26 @@
+# Build an Oracle Database image.
+
+# sudo to the oracle user:
+sudo su - oracle
+
+# Navigate to the build directory:
+cd /oradata/docker-images/OracleDatabase/SingleInstance/dockerfiles/
+
+# List the directory contents:
+ls -l
+
+# List the contents of the 19.3.0 directory:
+ls -l 19.3.0
+
+# Build an image for a 19c Enterprise Edition database:
+./buildContainerImage.sh -v 19.3.0 -e
+
+# This will take a long time (an hour or more) on an Always Free Tier instance!
+
+# List the images on the system:
+docker images
+
+# Get information about the database image:
+docker history oracle/database:19.3.0-ee
+
+docker inspect oracle/database:19.3.0-ee | less

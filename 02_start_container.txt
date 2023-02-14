@@ -1,0 +1,29 @@
+# List containers on the system:
+docker ps -a
+
+# Run a simple Alpine container:
+docker run -it --name alpine alpine:latest bash
+
+# Run a simple Oracle Database container:
+docker run -d oracle/database:19.3.0-ee
+
+# List containers on the system:
+docker ps -a
+
+# Remove the Oracle Database container:
+docker rm <container name>
+
+# Run a "better" Oracle Database container:
+docker run -d \
+       --name LAB \
+       -e ORACLE_SID=LABCDB \
+       -e ORACLE_PDB=LABPDB1 \
+       -v /oradata/LAB:/opt/oracle/oradata \
+       -p 51521:1521 \
+       oracle/database:19.3.0-ee
+
+# Review the log output from the container:
+docker logs -f LAB
+
+# List containers on the system:
+docker ps -a

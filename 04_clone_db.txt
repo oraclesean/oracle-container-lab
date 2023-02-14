@@ -1,0 +1,36 @@
+# Set the clone container name in a variable:
+export CONTAINER_NAME=CLONE
+
+# Create directories for the new container's data, diagnostic, and audit files:
+ for dir in audit data diag
+  do mkdir -p /oradata/${CONTAINER_NAME}/${dir}
+     rm -fr /oradata/${CONTAINER_NAME}/${dir}/*
+     docker volume rm ${CONTAINER_NAME}_${dir} 2>/dev/null
+     docker volume create --opt type=none --opt o=bind \
+            --opt device=/oradata/${CONTAINER_NAME}/${dir} \
+            ${CONTAINER_NAME}_${dir}
+done
+
+# Stop the old container:
+docker stop LAB
+
+# Copy the data from the old container to the new directory:
+cp -r /oradata/LAB/data /oradata/$CONTAINER_NAME/data
+
+# Create a new container, using the volumes created above, and be sure to:
+#     Use the same CDB & PDB names
+#     Change the port mapping
+docker rm -f $CONTAINER_NAME 2>/dev/null
+docker run -d \
+       --name ${CONTAINER_NAME} \
+       -e ORACLE_SID=LABCDB \
+       -e ORACLE_PDB=LABPDB1 \
+       --volume ${CONTAINER_NAME}_data:/opt/oracle/oradata \
+       --volume ${CONTAINER_NAME}_diag:/opt/oracle/diag \
+       --volume ${CONTAINER_NAME}_audit:/opt/oracle/admin \
+       --volume /oradata/scripts:/scripts \
+       -p 51522:1521 \
+       oracle/database:19.3.0-ee
+
+# Monitor database startup:
+docker logs -f $CONTAINER_NAME

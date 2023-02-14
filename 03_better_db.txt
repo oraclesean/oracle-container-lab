@@ -1,0 +1,41 @@
+# Stop, remove any existing database containers (for Always Free Tier systems):
+docker stop <container name>
+docker rm <container name>
+
+# Create a shared scripts directory:
+mkdir -p /oradata/scripts
+
+# Set the container name:
+CONTAINER_NAME=LAB
+
+# Create directories and volumes for data, diagnostic, and audit:
+ for dir in audit data diag
+  do mkdir -p /oradata/${CONTAINER_NAME}/${dir}
+     rm -fr /oradata/${CONTAINER_NAME}/${dir}/*
+     docker volume rm ${CONTAINER_NAME}_${dir} 2>/dev/null
+     docker volume create --opt type=none --opt o=bind \
+            --opt device=/oradata/${CONTAINER_NAME}/${dir} \
+            ${CONTAINER_NAME}_${dir}
+done
+
+# Create a database container and:
+#     mount volumes for data, diagnostic, and audit data
+#     mount the shared scripts directory
+#     map the listener port to the localhost
+docker rm -f $CONTAINER_NAME 2>/dev/null
+docker run -d \
+       --name ${CONTAINER_NAME} \
+       -e ORACLE_SID=LABCDB \
+       -e ORACLE_PDB=LABPDB1 \
+       --volume ${CONTAINER_NAME}_data:/opt/oracle/oradata \
+       --volume ${CONTAINER_NAME}_diag:/opt/oracle/diag \
+       --volume ${CONTAINER_NAME}_audit:/opt/oracle/admin \
+       --volume /oradata/scripts:/scripts \
+       -p 51521:1521 \
+       oracle/database:19.3.0-ee
+
+# Monitor database creation progress:
+docker logs -f $CONTAINER_NAME
+
+# Connect to the container:
+docker exec -it $CONTAINER_NAME bash
