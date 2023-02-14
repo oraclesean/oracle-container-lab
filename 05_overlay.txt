@@ -1,0 +1,2 @@
+# Run a "container":
+unshare --mount --uts --pid --fork --user --ipc --net --map-root-user chroot /home/opc/overlay/container /bin/ash && export PATH=/bin:/sbin:$PATH
